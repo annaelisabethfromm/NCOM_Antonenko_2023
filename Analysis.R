@@ -3,9 +3,6 @@
 #R version 4.1.2 (2021-11-01)
 #Windows 7 x64 (build 7601) SP 1system   x86_64, mingw32ui  
 
-#RStudio 2022.07.0+548 "Spotted Wakerobin" Release (34ea3031089fa4e38738a9256d6fa6d70629c822, 2022-07-06) for Windows
-#Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36
-
 ############linear  models and correlations ###########
 
 rm(list=ls())
@@ -32,9 +29,9 @@ library(GGally)
 
 
 
-setwd("Y:/03_Mitarbeiter/Daria_Antonenko/trainstim_mri/0_NCOMMS_revision")
+setwd("YOUR PATH")
 
-df1 <- read.xlsx("NCOMMS-22-47025_data_revision.xlsx"
+df1 <- read.xlsx("Source_Data.xlsx"
                  ,sheet = "All_data", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NA",   fillMergedCells = FALSE)
 
 df1<-clean_names(df1)
