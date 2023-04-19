@@ -1,5 +1,6 @@
 # NCOM_Antonenko_2023
 ## Microstructural and functional plasticity following repeated brain stimulation during cognitive training in older adults
+Author List:
 Daria Antonenko, Anna Elisabeth Fromm, Friederike Thams, Ulrike Grittner, Marcus Meinzer, Agnes Flöel
 
 ### Data and Code Availability 
