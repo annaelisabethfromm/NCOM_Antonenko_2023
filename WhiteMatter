@@ -1,5 +1,6 @@
-#Probe TRACS
-directories..,. 
+### Probabilistic Tractography Analysis ###
+# paths have to be adapted to your own path; we only provide the codes for the analyses and processing
+#All steps have to be done for both time points (on images generated in FreeSurfer’s longitudinal pipeline)
 
 # Normalization of individual FA images
 
