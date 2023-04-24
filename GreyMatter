@@ -18,3 +18,18 @@ $QA_TOOLS/recon_checker -s-file QA_check
 $QA_TOOLS/recon_checker -no-snaps
 
 freeview -v $dir/T1.mgz $dir/aparc+aseg.mgz:colormap=lut:opacity=0.2
+
+# Extract Stats 
+aparcstats2table --hemi lh --subjects XXX   --meas volume --tablefile lh.aparc_stats_vol_XXX_1pre_long.txt
+aparcstats2table --hemi rh --subjects XXX    --meas volume --tablefile rh.aparc_stats_vol_XXX_1pre_long.txt
+aparcstats2table --hemi lh --subjects XXX    --parc aparc.a2009s --meas volume --tablefile lh.aparc_stats_vol_XXX_destrieux_1pre_long.txt
+aparcstats2table --hemi rh --subjects XXX    --parc aparc.a2009s --meas volume --tablefile rh.aparc_stats_vol_XXX_destrieux_1pre_long.txt
+aparcstats2table --hemi lh --subjects XXX   --meas thickness --tablefile lh.aparc_stats_thk_XXX_1pre_long.txt
+aparcstats2table --hemi rh --subjects  XXX    --meas thickness --tablefile rh.aparc_stats_thk_XXX_1pre_long.txt
+aparcstats2table --hemi lh --subjects  XXX    --parc aparc.a2009s --meas thickness --tablefile lh.aparc_stats_thk_XXX_destrieux_1pre_long.txt
+aparcstats2table --hemi rh --subjects  XXX    --parc aparc.a2009s --meas thickness --tablefile rh.aparc_stats_thk_XXX_destrieux_1pre_long.txt
+aparcstats2table --hemi lh --subjects  XXX    --tablefile lh.aparc_stats_area_XXX_1pre_long.txt
+aparcstats2table --hemi rh --subjects  XXX    --tablefile rh.aparc_stats_area_XXX_1pre_long.txt
+aparcstats2table --hemi lh --subjects  XXX    --parc aparc.a2009s --tablefile lh.aparc_stats_area_XXX_destrieux_1pre_long.txt
+aparcstats2table --hemi rh --subjects  XXX    --parc aparc.a2009s --tablefile rh.aparc_stats_area_XXX_destrieux_1pre_long.txt
+
