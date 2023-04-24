@@ -1,0 +1,20 @@
+#### Freesurfer Segmentation ####
+# paths have to be adapted to your own path; we only provide the codes for the analyses and processing 
+
+# Reconstruction T1 (for pre and post) 
+recon-all -i $indir/${subject}-1pre_030T1.nii -s ${subject}-1pre -parallel -all
+
+# Reconstruction (template)
+recon-all -base ${subject}_template -tp ${subject}-1pre -tp ${subject}-2post -all -no-isrunning
+
+
+# Reconstruction (longitudinal for pre and post)
+recon-all -long ${subject}-1pre ${subject}_template -all -parallel -no-isrunning
+
+# Qualtity Assessment 
+export SUBJECTS_DIR=XXX/SEGMENTATION/Output
+export QA_TOOLS=XXX/QAtools_v1.2
+$QA_TOOLS/recon_checker -s-file QA_check
+$QA_TOOLS/recon_checker -no-snaps
+
+freeview -v $dir/T1.mgz $dir/aparc+aseg.mgz:colormap=lut:opacity=0.2
