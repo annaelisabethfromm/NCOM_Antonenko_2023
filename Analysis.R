@@ -3,15 +3,19 @@
 #R version 4.1.2 (2021-11-01)
 #Windows 7 x64 (build 7601) SP 1system   x86_64, mingw32ui  
 
-############linear  models and correlations ###########
 
 rm(list=ls())
 
 library(openxlsx)
 library(rstatix)
 library(dplyr)
+#library(mice)
+#library(lme4)
 library(foreign)
 library(emmeans) 
+#library(r2glmm)
+#library(broom.mixed)
+library(tidyverse)
 library(ggpubr)
 library(jtools)
 library(GGally)
@@ -26,13 +30,16 @@ library(Rmisc)
 library(devtools)
 library(gghalves)
 library(GGally)
-
+#citation('base')
+#citation('tidyverse')
+#citation('emmeans')
+#citation('GGally')
 
 
 setwd("YOUR PATH")
 
 df1 <- read.xlsx("Source_Data.xlsx"
-                 ,sheet = "All_data", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NA",   fillMergedCells = FALSE)
+                 ,sheet = "MainAnalyses", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NaN",   fillMergedCells = FALSE)
 
 df1<-clean_names(df1)
 head(df1)
@@ -478,46 +485,16 @@ plot1<-ggpairs(data,columns, upper=list(continuous=wrap("cor",size=3.5, method="
 plot1
 
 
+######################## Supplements ########################
 
-##### Results Supplements ############## 
-
-data <- read.xlsx("Source_Data.xlsx"
-                  ,sheet = '1', startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NA",   fillMergedCells = FALSE)
-
-data$stim <-as.factor(data$stim)
-
-lowerfun <- function(data,mapping){
-  ggplot(data = data, mapping = mapping)+
-    geom_point(size=1.5)+
-    geom_smooth(aes(group=data$stim), method="lm", size=0.5)
-  # stat_cor(method="spearman", cor.coef.name = "rho")
-  # scale_x_continuous(limits = c(2000,20000))+
-  #  scale_y_continuous(limits = c(2000,20000))
-}  
-
-my_dens <- function(data, mapping) {
-  ggplot(data = data, mapping=mapping) +
-    geom_density(  alpha = 0.7) 
-}
-
-columns = c("fa_pre10", "lMidFG_mul_cmfg_add_rmfg_pre", "clusterPre", "nback_perccorr_diff_PostPre")
-plot2<-ggpairs(data,columns, upper=list(continuous=wrap("cor",size=3.5, method="spearman")),lower = list(continuous = lowerfun), diag =list(continuous = "barDiag"), mapping = aes(color = stim))+
-  ggplot2::theme_bw(base_size=9)
-plot2
-
-
-
-###Table R1 Adverse Events#######
+###Suppl_Tab1_AE#######
 
 dat <- read.xlsx("Source_Data.xlsx"
-                        ,sheet = "Suppl_AE", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NA",   fillMergedCells = FALSE)
+                 ,sheet = "Suppl_Tab1_AE", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NaN",   fillMergedCells = FALSE)
 
 dat$stim <- as.factor(dat$stim)
-###
-
 count(dat$stim)
 
-########observation time in days (mean (SD))
 mean(dat$period)
 sd(dat$period)
 aggregate(dat$period, list(dat$stim), FUN=mean)
@@ -711,11 +688,11 @@ participants_ae <- dat[ which(dat$sum_ae>'0'), ]
 count(participants_ae$stim)
 
 
-##### Table R2 Blinding ########
+##### Suppl_Tab2_BI ########
 library(BI)
 
-df1 <- read.xlsx("NCOMMS-22-47025_data_revision.xlsx"
-                 ,sheet = "Suppl_blinding", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NA",   fillMergedCells = FALSE)
+df1 <- read.xlsx("Source_Data.xlsx"
+                 ,sheet = "Suppl_Tab2_BI", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NaN",   fillMergedCells = FALSE)
 
 
 df1$stim <- as.factor(df1$stim)
@@ -740,28 +717,9 @@ BI(x, alternative.B = "greater")
 BI(x, alternative.B = "less")
 
 
-######### Table R4. Linear regression analysis for the two (behavioral variables)########
-data <- read.xlsx("Source_Data.xlsx"
-                  ,sheet = "All_data", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NA",   fillMergedCells = FALSE)
-
-
-data$stim <-as.factor(data$stim)
-
-m1 =lm(nback_perccorr_diff_PostPre ~ diff_POSTMINUSPRE_fa10 + lMidFG_mul_cmfg_add_rmfg_postMINUSpre1000 + clusterPOSTminusPRE, data=data)
-summary(m1)
-
-m2 =lm(LU_diff_PostPre ~ diff_POSTMINUSPRE_fa10 + lMidFG_mul_cmfg_add_rmfg_postMINUSpre1000 + clusterPOSTminusPRE, data=data)
-summary(m2)
-
-m3 =lm(lMidFG_mul_cmfg_add_rmfg_postMINUSpre1000 ~ diff_POSTMINUSPRE_fa10  + clusterPOSTminusPRE  , data=data)
-summary(m3)
-
-
-
-###### R5 TBSS######
-
+########### Suppl_Fig1_TBSS ############
 df1 <- read.xlsx("Source_Data.xlsx"
-                 ,sheet = "Suppl_TBSS", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NA",   fillMergedCells = FALSE)
+                 ,sheet = "Suppl_Fig1_TBSS", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NaN",   fillMergedCells = FALSE)
 
 
 df1_long <-reshape(df1,
@@ -861,16 +819,16 @@ ggplot(NULL, aes(y=y))+
     data=d0 %>% filter(x=="5"),aes(x=x, y=y), position=position_nudge(x=1.7),
     side="r", fill="dodgerblue", alpha=.5, color="dodgerblue", trim=TRUE)+
   scale_x_continuous(breaks=c(1,2,4,5), labels=c("Pre", "Post", "Pre", "Post"))+
-  xlab("Time") +ylab("Xskel")+
-  labs(title = "Xskel over Time")+
+  xlab("Time") +ylab("FA")+
   theme_classic()
 
+### Suppl_fig3 TRACULA #####
 
 
 
 ##### R 5 TRACULA##########
 df1 <- read.xlsx("Source_Data.xlsx"
-                 ,sheet = "Suppl_TRACULA", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NA",   fillMergedCells = FALSE)
+                 ,sheet = "Suppl_Fig3_TRACULA", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NaN",   fillMergedCells = FALSE)
 
 
 ############Corpus Callosum ##########
@@ -1111,5 +1069,49 @@ em2
 pairs(em2, adjust='none')
 etaSquared(m2,type=3)
 
+######### Suppl_Table4_LR ########
+data <- read.xlsx("Source_Data.xlsx"
+                  ,sheet = "Suppl_Table4_LR", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NaN",   fillMergedCells = FALSE)
+
+
+data$stim <-as.factor(data$stim)
+
+m1 =lm(nback_perccorr_diff_PostPre ~ diff_POSTMINUSPRE_fa10 + lMidFG_mul_cmfg_add_rmfg_postMINUSpre1000 + clusterPOSTminusPRE, data=data)
+summary(m1)
+
+m2 =lm(LU_diff_PostPre ~ diff_POSTMINUSPRE_fa10 + lMidFG_mul_cmfg_add_rmfg_postMINUSpre1000 + clusterPOSTminusPRE, data=data)
+summary(m2)
+
+m3 =lm(lMidFG_mul_cmfg_add_rmfg_postMINUSpre1000 ~ diff_POSTMINUSPRE_fa10  + clusterPOSTminusPRE  , data=data)
+summary(m3)
+
+
+
+
+
+######### Suppl_Fig4_Pre ########
+data <- read.xlsx("Source_Data.xlsx"
+                  ,sheet = "Suppl_Fig4_Pre", startRow = 1, colNames = TRUE, rowNames = FALSE, detectDates = FALSE,   skipEmptyRows = TRUE,   skipEmptyCols = TRUE,   rows = NULL,   cols = NULL,   sep.names = ".",   na.strings = "NaN",   fillMergedCells = FALSE)
+
+data$stim <-as.factor(data$stim)
+
+lowerfun <- function(data,mapping){
+  ggplot(data = data, mapping = mapping)+
+    geom_point(size=1.5)+
+    geom_smooth(aes(group=data$stim), method="lm", size=0.5)
+  # stat_cor(method="spearman", cor.coef.name = "rho")
+  # scale_x_continuous(limits = c(2000,20000))+
+  #  scale_y_continuous(limits = c(2000,20000))
+}  
+
+my_dens <- function(data, mapping) {
+  ggplot(data = data, mapping=mapping) +
+    geom_density(  alpha = 0.7) 
+}
+
+columns = c("fa_pre10", "lMidFG_mul_cmfg_add_rmfg_pre", "clusterPre", "nback_perccorr_diff_PostPre")
+plot2<-ggpairs(data,columns, upper=list(continuous=wrap("cor",size=3.5, method="spearman")),lower = list(continuous = lowerfun), diag =list(continuous = "barDiag"), mapping = aes(color = stim))+
+  ggplot2::theme_bw(base_size=9)
+plot2
 
 
