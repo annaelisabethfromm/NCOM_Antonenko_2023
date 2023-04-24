@@ -1,0 +1,50 @@
+#Probe TRACS
+directories..,. 
+
+# Normalization of individual FA images
+
+flirt -ref /usr/local/fsl/data/standard/FMRIB58_FA_1mm.nii.gz -in ${dtidir}/${subject}_dtifit_FA -omat ${dtidir}/affine_transf.mat
+
+fnirt --in=${dtidir}/${subject}_dtifit_FA --aff=${dtidir}/affine_transf.mat --cout=${dtidir}/nonlinear_transf --config=FA_2_FMRIB58_1mm
+
+applywarp --ref=/usr/local/fsl/data/standard/FMRIB58_FA_1mm.nii.gz --in=${dtidir}/${subject}_dtifit_FA --warp=${dtidir}/nonlinear_transf --out=${dtidir}/warped_FA
+
+invwarp --warp=${dtidir}/nonlinear_transf --ref=${dtidir}/${subject}_dtifit_FA --out=${dtidir}/inverse_nl_trans
+
+
+# Registration seed ROIs in individual DTI space
+applywarp --ref=${maskdir}/nodif_brain_mask --in=${ROIdir}/lMidFG --warp=${dtidir}/inverse_nl_trans --out=${indROIdir}/ind_lMidFG.nii.gz
+
+fslmaths ${indROIdir}/ind_lMidFG.nii.gz -mul ${dtidir}/${subject}_dtifit_FA ${indROIdir}/ind_lMidFG_multidti.nii.gz
+
+fslmaths ${indROIdir}/ind_lMidFG_multidti.nii.gz -bin ${indROIdir}/ind_lMidFG_multidti_bin.nii.gz
+
+# Run individual probabilistic tractography 
+
+/usr/local/fsl/bin/probtrackx2  -x $pathdir/ROIs/ind_lMidFG_multidti_bin.nii.gz  -l --onewaycondition -c 0.2 -S 2000 --steplength=0.5 -P 5000 --fibthresh=0.01 --distthresh=0.0 --sampvox=0.0 --forcedir --opd -s $bedpdir/merged -m $bedpdir/nodif_brain_mask  --dir=$pathdir/Results_lMidFG
+
+# Rescale pathways
+
+### Rescale Paths
+min=`fslstats $pathdir/fdt_paths.nii.gz -R | awk '{print $1}'`
+max=`fslstats $pathdir/fdt_paths.nii.gz -R | awk '{print $2}'`
+
+scaling=`echo "scale=5; 100.0 / ($max - $min)" | bc`
+
+fslmaths $pathdir/fdt_paths.nii.gz -sub $min -mul $scaling $pathdir/fdt_paths_scaled.nii.gz
+
+
+# Threshold pathways
+fslmaths $dir/Results_lMidFG/fdt_paths_scaled.nii.gz -thr 10 $dir/Results_lMidFG/fdt_paths_scaled_10.nii.gz
+
+# Visual check of pathways
+fsleyes $dir/${subject}_dtifit_FA.nii.gz $dir/Results_lMidFG/fdt_paths_scaled_10.nii.gz -cm Red-Yellow #$dir/Results/fdt_paths.nii.gz -cm Green
+
+# FA extraction
+fslstats $dir/${subject}_dtifit_FA.nii.gz -k $dir/Results_lMidFG/fdt_paths_scaled_10.nii.gz -M > $dir/${subject}_lMidFG_FA_10
+
+FA=`awk '{print $1}' $dir/${subject}_lMidFG_FA_10`
+
+echo "$subject $FA" >> $txtout/Pre-lMidFG_FA_10.txt
+
+
