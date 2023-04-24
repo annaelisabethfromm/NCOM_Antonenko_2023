@@ -1,5 +1,6 @@
 #### Freesurfer Segmentation ####
 # paths have to be adapted to your own path; we only provide the codes for the analyses and processing 
+#All steps have to be done for both time points (pre/post) respec. on the longitudinal templates
 
 # Reconstruction T1 (for pre and post) 
 recon-all -i $indir/${subject}-1pre_030T1.nii -s ${subject}-1pre -parallel -all
