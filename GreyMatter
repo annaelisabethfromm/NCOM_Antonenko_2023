@@ -82,7 +82,7 @@ trac-all -bedp -c dmrirc.long_XXX
 trac-all -path -c dmrirc.long_XXX
 trac-all -stat -c dmrirc.long_XXX
 
-#Qualtiy Assessment
+# Quality Assessment
 while read subject; do 
 
 freeview -v  XXX/${subject}-1pre.long.${subject}_template/dmri/dtifit_FA.nii.gz\
