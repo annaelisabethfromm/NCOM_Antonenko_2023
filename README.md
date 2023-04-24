@@ -20,7 +20,7 @@ To run the R script, you need to:
 - dowload the data and set the working directory to your own directory 
 
 ### MRI Analyses 
-1 - System requirements for each analysis are mentioned in the respective word file for Freesurfer, FSL, and CONN toolbox. No non-standard hardware is required. 
+1 - No non-standard hardware is required. 
 
 2 - Installation instructions are available on the respective homepages: 
 FSL: https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation
