@@ -28,6 +28,6 @@ Freesurfer: https://surfer.nmr.mgh.harvard.edu/fswiki/ReleaseNotes
 CONN: https://web.conn-toolbox.org
 
 3 - We provide the bash codes and a short introduction for  
-- grey matter analyses
-- white matter analyses
-- resting state analyses 
+- grey matter analyses (GreyMatter)
+- white matter analyses (WhiteMatter)
+- resting state analyses (RestingState)
