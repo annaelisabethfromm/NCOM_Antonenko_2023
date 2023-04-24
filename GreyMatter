@@ -82,7 +82,14 @@ trac-all -bedp -c dmrirc.long_XXX
 trac-all -path -c dmrirc.long_XXX
 trac-all -stat -c dmrirc.long_XXX
 
-#extract stats (pre/post)
+#Qualtiy Assessment
+while read subject; do 
+
+freeview -v  XXX/${subject}-1pre.long.${subject}_template/dmri/dtifit_FA.nii.gz\
+       -tv XXX/${subject}-1pre.long.${subject}_template/dpath/merged_avg16_mni_bbr.mgz 
+
+
+# Extract stats (pre/post)
 a=`ls $dir/cc.bodypf_avg16_mni_bbr/pathstats.overall.txt`
 b=`ls $dir/lh.slf1_avg16_mni_bbr/pathstats.overall.txt`
 c`ls $dir/lh.slf2_avg16_mni_bbr/pathstats.overall.txt`
@@ -94,3 +101,22 @@ echo "$fc" >> $output/list_N46_pathstats_lh.slf2_1pre.txt
 tractstats2table --load-pathstats-from-file XXX/list_N46_pathstats_cc.bodypf_1pre.txt --overall --tablefile XXX/bodypf.All.table_1pre.txt
 tractstats2table --load-pathstats-from-file XXX/list_N46_pathstats_lh.slf1_1pre.txt --overall --tablefile XXX/lh.slf1.All.table_2post.txt
 tractstats2table --load-pathstats-from-file XXX/list_N46_pathstats_lh.slf2_1pre.txt --overall --tablefile XXX/lh.slf2.All.table_2post.txt
+
+# Register ROIS (middle frontal gyrus) to DTI space (pre/post)
+flirt -in $dir/${subject}-1pre.long.${subject}_template/mri/T1.nii.gz -ref $dir/${subject}-1pre.long.${subject}_template/dmri/dtifit_FA.nii.gz -out $dir/${subject}-1pre.long.${subject}_template/mri/T1todti.nii.gz -omat $dir/${subject}-1pre.long.${subject}_template/mri/T1todti.mat -bins 256 -cost mutualinfo -searchrx -90 90 -searchry -90 90 -searchrz -90 90 -dof 6 -interp nearestneighbour
+
+flirt -in $dir/${subject}-1pre.long.${subject}_template/mri/caudal_middle_frontal_gyrus_left.nii -applyxfm -init $dir/${subject}-1pre.long.${subject}_template/mri/T1todti.mat -out $dir/${subject}-1pre.long.${subject}_template/mri/caudal_middle_frontal_gyrus_left_todti.nii.gz -paddingsize 0.0 -interp nearestneighbour -ref $dir/${subject}-1pre.long.${subject}_template/dmri/dtifit_FA.nii.gz
+
+flirt -in $dir/${subject}-1pre.long.${subject}_template/mri/rostral_middle_frontal_gyrus_left.nii -applyxfm -init $dir/${subject}-1pre.long.${subject}_template/mri/T1todti.mat -out $dir/${subject}-1pre.long.${subject}_template/mri/rostral_middle_frontal_gyrus_left_todti.nii.gz -paddingsize 0.0 -interp nearestneighbour -ref $dir/${subject}-1pre.long.${subject}_template/dmri/dtifit_FA.nii.gz
+
+# Combine rostral middle frontal gyrus, caudal middle frontal gyrus with TRACT and extract MD (pre/post)
+fslmaths ${indROIdir}/ind_lMidFG_multidti_bin.nii.gz -mul ${dtidir}/rostral_middle_frontal_gyrus_left_todti.nii.gz ${indROIdir}/lMidFG_mul_rmfg_dti.nii.gz
+fslmaths ${indROIdir}/lMidFG_mul_rmfg_dti.nii.gz -bin ${indROIdir}/lMidFG_mul_rmfg_bin_dti.nii.gz
+fslmaths ${dtidir}/caudal_middle_frontal_gyrus_left_todti.nii.gz -add ${dtidir}/rostral_middle_frontal_gyrus_left_todti.nii.gz ${indROIdir}/cmfg_add_rmfg_dti.nii.gz
+fslmaths ${indROIdir}/cmfg_add_rmfg_dti.nii.gz -bin ${indROIdir}/cmfg_add_rmfg_bin_dti.nii.gz
+fslmaths ${indROIdir}/ind_lMidFG_multidti_bin.nii.gz -mul ${indROIdir}/cmfg_add_rmfg_bin_dti.nii.gz ${indROIdir}/lMidFG_mul_cmfg_add_rmfg_dti.nii.gz
+lMidFG_mul_rmfg=`fslstats ${mddir}/dtifit_MD.nii.gz -k $indROIdir/lMidFG_mul_rmfg_bin_dti.nii.gz -m`
+cmfg_add_rmfg=`fslstats ${mddir}/dtifit_MD.nii.gz -k $indROIdir/cmfg_add_rmfg_bin_dti.nii.gz -m`
+lMidFG_mul_cmfg_add_rmfg=`fslstats ${mddir}/dtifit_MD.nii.gz -k $indROIdir/lMidFG_mul_cmfg_add_rmfg_dti.nii.gz -m`
+
+echo "$subject $lMidFG_mul_cmfg_add_rmfg" >> /XXX/ROI_MD_pre.txt
