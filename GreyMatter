@@ -33,3 +33,14 @@ aparcstats2table --hemi rh --subjects  XXX    --tablefile rh.aparc_stats_area_XX
 aparcstats2table --hemi lh --subjects  XXX    --parc aparc.a2009s --tablefile lh.aparc_stats_area_XXX_destrieux_1pre_long.txt
 aparcstats2table --hemi rh --subjects  XXX    --parc aparc.a2009s --tablefile rh.aparc_stats_area_XXX_destrieux_1pre_long.txt
 
+## extract ROI (middle frontal gyrus) 
+fslmaths $dir/${subject}-1pre.long.${subject}_template/mri/aparc+aseg.nii.gz -thr 1002.5 -uthr 1003.5 $dir/${subject}-1pre.long.${subject}_template/mri/caudal_middle_frontal_gyrus_left.nii.gz
+gzip -d $dir/${subject}-1pre.long.${subject}_template/mri/caudal_middle_frontal_gyrus_left.nii.gz
+
+fslmaths $dir/${subject}-1pre.long.${subject}_template/mri/aparc+aseg.nii.gz -thr 1026.5 -uthr 1027.5 $dir/${subject}-1pre.long.${subject}_template/mri/rostral_middle_frontal_gyrus_left.nii.gz
+gzip -d $dir/${subject}-1pre.long.${subject}_template/mri/rostral_middle_frontal_gyrus_left.nii.gz
+
+#### Freesurfer Tractography (TRACULA)  ####
+#create configuration file (example): https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/Tracula
+
+
